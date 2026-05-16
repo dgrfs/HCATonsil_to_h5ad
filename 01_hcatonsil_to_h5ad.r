@@ -1,3 +1,6 @@
+Sys.setenv(BASILISK_CACHE = file.path(Sys.getenv("TMP"), "basilisk_cache"))
+Sys.setenv(RETICULATE_MINICONDA_PATH = file.path(Sys.getenv("TMP"), "miniconda"))
+
 library(SingleCellExperiment)
 library(Matrix)
 library(DelayedArray)
