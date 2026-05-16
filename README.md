@@ -25,10 +25,26 @@ This is the easiest to download the annotated data
 
 # Pixi package manager and sce conversion pipeline
 
+## System requirements
+Tested on macos arm and linux osx64. On macos, ran out of memory halfway through. Successfully tested on HPC requesting 200GB of memory. This could be optimised for less, but I haven't tested how low I can go in terms of memory. I reserved 4 hours, but development and testing took around an hour. I would recommend 2 hours.
+
+### Tested SLURM request in dev
+```
+srun --time=04:00:00 --mem=200G -A <ACCOUNT> -p icelake --pty /bin/bash
+```
+
 ## Usage 
 
 ```
+# Install pixi
 curl -fsSL https://pixi.sh/install.sh | bash
-git clone <your-repo> && cd <your-repo>
+
+# Clone repo and change directory
+git clone git@github.com:dgrfs/HCATonsil_to_h5ad.git && cd HCATonsil_to_h5ad
+
+# Ensure that $TEMP is defined 
+export TMP=/rds/project/rds-CBhaM9mB5fs/$USER/tmp
+
+# Run pixi pipeline (workflow described in pixi.toml)
 pixi run pipeline
 ```
