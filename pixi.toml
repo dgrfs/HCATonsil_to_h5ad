@@ -1,0 +1,75 @@
+[workspace]
+name = "Create_adata_HTA"
+version = "0.1.0"
+description = "Python + R single-cell analysis environment"
+channels = ["conda-forge", "bioconda"]
+platforms = ["osx-64", "linux-64"]
+
+[dependencies]
+python = "3.11.*"
+r-base = "4.3.*"
+scanpy = "*"
+anndata = "*"
+numpy = "*"
+pandas = "*"
+scipy = "*"
+matplotlib = "*"
+r-seurat = "*"
+bioconductor-singlecellexperiment = "*"
+
+# HDF5
+hdf5 = "*"
+bioconductor-rhdf5 = "*"
+bioconductor-hdf5array = "*"
+
+# Bioconductor core (pre-built binaries)
+bioconductor-biocparallel = "*"
+bioconductor-rsamtools = "*"
+bioconductor-genomicalignments = "*"
+bioconductor-rtracklayer = "*"
+bioconductor-annotationdbi = "*"
+bioconductor-annotationhub = "*"
+bioconductor-experimenthub = "*"
+bioconductor-spatialexperiment = "*"
+bioconductor-keggrest = "*"
+bioconductor-zellkonverter = "*"
+
+# magick (R image package — needed by SpatialExperiment)
+r-magick = "*"
+
+# BiocManager for manual installs
+r-biocmanager = "*"
+
+# Compilers
+c-compiler = "*"
+cxx-compiler = "*"
+fortran-compiler = "*"
+llvm-openmp = "*"
+
+# Build tooling
+make = "*"
+cmake = "*"
+pkg-config = "*"
+
+[tasks]
+install-bioc = { cmd = """
+Rscript -e '
+  if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+  pkgs <- c(
+    "GenomeInfoDbData",
+    "GenomeInfoDb",
+    "BSgenome",
+    "HCATonsilData"
+  )
+  BiocManager::install(pkgs, ask = FALSE, update = FALSE)
+'
+""" }
+
+# Step 1 — download HCA tonsil data and export to .h5ad
+export-h5ad = { cmd = "Rscript 01_hcatonsil_to_h5ad.r", depends-on = ["install-bioc"] }
+
+# Step 2 — cast to float32 ready for scvi
+convert = { cmd = "python 02_convert_to_csr.py", depends-on = ["export-h5ad"] }
+
+# Run the full pipeline end-to-end: pixi run pipeline
+pipeline = { depends-on = ["install-bioc", "export-h5ad", "convert"] }
