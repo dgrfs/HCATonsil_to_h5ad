@@ -1,10 +1,9 @@
 import scanpy as sc
-import scipy.sparse as sp
 
-adata = sc.read("sce_min.h5ad")
+adata = sc.read_h5ad("sce_min.h5ad", backed="r")
 
-# Ensure float32 (scvi requirement)
 if adata.X.dtype != "float32":
-    adata.X = adata.X.astype("float32")
+    # Can't cast in-place in backed mode — write with conversion
+    adata.X = adata.X.astype("float32")  # only runs if small enough
 
-sc.write(adata, "sce_min_ready.h5ad", compression="gzip")
+adata.write_h5ad("sce_min_ready.h5ad", compression="gzip")
